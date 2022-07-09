@@ -1,10 +1,14 @@
 let site = [];
 
-function cirk(headers,ul){
-  for (i = 0; i < headers[1].length; i++) {
-    site = [headers[1][i], headers[3][i]];
+function spisok(title){
+  const ul = document.createElement('ul');
+  const urlTitle = 1;
+  const urlLink = 3;
+  for (i = 0; i < title[1].length; i++) {
+    site = [title[urlTitle][i], title[urlLink][i]];
     createElementItem(site,ul);
-    };
+  };
+  document.body.appendChild(ul);
 }
 
 const createElementItem = (site,parentElement) => {
@@ -12,52 +16,43 @@ const createElementItem = (site,parentElement) => {
   ElementItem.classList.add('list-item_1');
   let a = document.createElement('a');
   a.setAttribute ('href',site[1]);
-  a.classList.add('promise_1');
-  a.textContent= site[0];
+  a.classList.add('link');
+  a.textContent = site[0];
   ElementItem.append(a);
   parentElement.append(ElementItem);
 }
 
-const  searchWiki = () => {
+function URL(){
   let search = document.querySelector('.input-in').value;
   let url = 'https://en.wikipedia.org/w/api.php?action=opensearch&ailimit=3&format=json&origin=*&search=';
-  let url1= url + search;
-    return  fetch(url1).then(response => {
+  return url + search;
+}
+
+const  searchWikiPromise = () => {
+    return  fetch(URL()).then(response => {
       return response.json()
     })
     .then((data) => {
-    const headers = data;
-    const ul = document.createElement('ul');
-    cirk(headers,ul);
-    document.body.appendChild(ul);
+    const title = data;
+    spisok(title);
     })
   }
 
-const searchWiki_1 = async () => {
-  let search = document.querySelector('.input-in').value;
-  let url = 'https://en.wikipedia.org/w/api.php?action=opensearch&ailimit=3&format=json&origin=*&search=';
-  let url1= url + search;
-  let response =  await fetch(url1);
+const searchWikiAsync = async () => {
+  let response =  await fetch(URL());
   let result = await response.json();
-      const headers = result;
-      const ul = document.createElement('ul');
-      cirk(headers,ul);
-      document.body.appendChild(ul);
-    }
+  const title = result;
+  spisok(title);
+}
   
-const searchWiki_2 = asyncAlt(function*()  {
-    let search = document.querySelector('.input-in').value;
-    let url = 'https://en.wikipedia.org/w/api.php?action=opensearch&ailimit=3&format=json&origin=*&search=';
-    let url1= url + search;
-    let response =  yield fetch(url1);
+const searchWikiGen = asyncAlt(function*()  {
+    let response =  yield fetch(URL());
     let result = yield response.json();
-        const headers =  result;
-        const ul = document.createElement('ul');
-        cirk(headers,ul);
-        document.body.appendChild(ul);
-        
-      }
-)
+    const title =  result;
+    console.log(title);
+    spisok(title);
+})
+
 function asyncAlt(generatorFunction) {
   return function() { 
     const generator = generatorFunction()
@@ -74,27 +69,29 @@ function asyncAlt(generatorFunction) {
 }
 
 function setOnClick(method){ 
-  clearFunction();
-  switch(method){
-case 'promise':
-  document.querySelector('.main_search').removeEventListener('click',searchWiki_1);
-  document.querySelector('.main_search').removeEventListener('click',searchWiki_2);
-  
-  document.querySelector('.main_search').addEventListener('click',searchWiki);
-break;
-case 'async':
-  document.querySelector('.main_search').removeEventListener('click',searchWiki);
-  document.querySelector('.main_search').removeEventListener('click',searchWiki_2);
-  
-  document.querySelector('.main_search').addEventListener('click',searchWiki_1);
+const methods = {
+  promise:'promise',
+  async:'async',
+  gen:'gen'
+}
+clearFunction();
+switch(method){
+  case methods.promise:
+    document.querySelector('.main_search').removeEventListener('click',searchWikiAsync);
+    document.querySelector('.main_search').removeEventListener('click',searchWikiGen);
+    document.querySelector('.main_search').addEventListener('click',searchWikiPromise);
   break;
-  case 'gen':
-    document.querySelector('.main_search').removeEventListener('click',searchWiki);
-    document.querySelector('.main_search').removeEventListener('click',searchWiki_1);
-    
-    document.querySelector('.main_search').addEventListener('click',searchWiki_2);
-    break;
-default:undefined;
+  case methods.async:
+    document.querySelector('.main_search').removeEventListener('click',searchWikiPromise);
+    document.querySelector('.main_search').removeEventListener('click',searchWikiGen);
+    document.querySelector('.main_search').addEventListener('click',searchWikiAsync);
+  break;
+  case methods.gen:
+    document.querySelector('.main_search').removeEventListener('click',searchWikiPromise);
+    document.querySelector('.main_search').removeEventListener('click',searchWikiAsync);
+    document.querySelector('.main_search').addEventListener('click',searchWikiGen);
+  break;
+  default:undefined;
   }
 }
 
