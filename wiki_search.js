@@ -1,6 +1,6 @@
 let site = [];
 
-function spisok(title){
+function createList(title){
   const ul = document.createElement('ul');
   const urlTitle = 1;
   const urlLink = 3;
@@ -11,7 +11,7 @@ function spisok(title){
   document.body.appendChild(ul);
 }
 
-const createElementItem = (site,parentElement) => {
+const createElementItem = (site, parentElement) => {
   let ElementItem = document.createElement('li');
   ElementItem.classList.add('list-item_1');
   let a = document.createElement('a');
@@ -34,7 +34,7 @@ const  searchWikiPromise = () => {
     })
     .then((data) => {
     const title = data;
-    spisok(title);
+    createList(title);
     })
   }
 
@@ -42,15 +42,14 @@ const searchWikiAsync = async () => {
   let response =  await fetch(URL());
   let result = await response.json();
   const title = result;
-  spisok(title);
+  createList(title);
 }
   
 const searchWikiGen = asyncAlt(function*()  {
     let response =  yield fetch(URL());
     let result = yield response.json();
     const title =  result;
-    console.log(title);
-    spisok(title);
+    createList(title);
 })
 
 function asyncAlt(generatorFunction) {
@@ -68,14 +67,15 @@ function asyncAlt(generatorFunction) {
   }
 }
 
-function setOnClick(method){ 
 const methods = {
   promise:'promise',
   async:'async',
   gen:'gen'
 }
-clearFunction();
-switch(method){
+
+function setOnClick(method){ 
+  clearFunction();
+  switch(method){
   case methods.promise:
     document.querySelector('.main_search').removeEventListener('click',searchWikiAsync);
     document.querySelector('.main_search').removeEventListener('click',searchWikiGen);
